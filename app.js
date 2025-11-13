@@ -1,8 +1,7 @@
-// Конфигурация Supabase
+
 var supabaseUrl = 'https://dmjladcvinikdvpmphkw.supabase.co';
 var supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtamxhZGN2aW5pa2R2cG1waGt3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwMzUwMjcsImV4cCI6MjA3ODYxMTAyN30.8dUxZF_YPvBoc6zL8mk8B_00c5HexRBNESeqGi2GCPY';
 
-// Инициализация Supabase клиента
 var supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
 var TVSchedule = function() {
@@ -26,7 +25,6 @@ TVSchedule.prototype.init = function() {
 };
 
 TVSchedule.prototype.updateMoscowTime = function() {
-    // Московское время (UTC+3)
     var now = new Date();
     var moscowTime = new Date(now.getTime() + (3 * 60 * 60 * 1000));
     var timeString = moscowTime.toLocaleTimeString('ru-RU');
@@ -38,8 +36,7 @@ TVSchedule.prototype.updateMoscowTime = function() {
     });
     
     document.getElementById('currentTime').textContent = dateString + ' | ' + timeString + ' (МСК)';
-    
-    // Обновляем текущие передачи каждую минуту
+
     if (now.getSeconds() === 0) {
         this.loadCurrentShows();
     }
@@ -119,7 +116,6 @@ TVSchedule.prototype.loadGenres = function() {
                 });
             }
             
-            // После загрузки жанров загружаем расписание и текущие передачи
             self.loadSchedule();
             self.loadCurrentShows();
         })
@@ -132,7 +128,6 @@ TVSchedule.prototype.loadCurrentShows = function() {
     var self = this;
     var channelFilter = document.getElementById('channelFilter').value;
     
-    // Текущее время в UTC (для сравнения с данными в БД)
     var nowUTC = new Date();
     
     var query = supabase
@@ -179,9 +174,8 @@ TVSchedule.prototype.renderCurrentShows = function(shows) {
     var html = '';
     
     shows.forEach(function(show) {
-        // Дополнительная проверка на случай, если какие-то данные отсутствуют
         if (!show || !show.channels || !show.shows) {
-            return; // Пропускаем некорректные записи
+            return; 
         }
 
         var progress = this.calculateProgress(show.start_datetime, show.end_datetime);
@@ -199,7 +193,6 @@ TVSchedule.prototype.renderCurrentShows = function(shows) {
         if (show.episode_title) {
             html += '<div class="show-episode">' + show.episode_title + '</div>';
         }
-        // Прогресс-бар передачи
         html += '<div style="margin-top: 10px; background: #e9ecef; border-radius: 10px; height: 6px;">';
         html += '<div style="background: #28a745; height: 100%; border-radius: 10px; width: ' + progress + '%;"></div>';
         html += '</div>';
@@ -230,8 +223,7 @@ TVSchedule.prototype.loadSchedule = function() {
     try {
         var channelFilter = document.getElementById('channelFilter').value;
         var genreFilter = document.getElementById('genreFilter').value;
-        
-        // Исправляем фильтрацию по дате - используем полночь по UTC
+    
         var startDate = new Date(this.currentDate + 'T00:00:00Z'); // UTC
         var endDate = new Date(this.currentDate + 'T23:59:59Z'); // UTC
 
@@ -258,7 +250,6 @@ TVSchedule.prototype.loadSchedule = function() {
                     return;
                 }
 
-                // Фильтруем записи, где есть все необходимые данные
                 var validSchedule = response.data.filter(function(item) {
                     return item && item.channels && item.shows;
                 });
@@ -283,9 +274,8 @@ TVSchedule.prototype.renderSchedule = function(schedule) {
         return;
     }
 
-    // Группируем по каналам
     var byChannel = schedule.reduce(function(acc, item) {
-        // Проверяем, что все необходимые данные есть
+
         if (!item || !item.channels) {
             return acc;
         }
@@ -314,9 +304,8 @@ TVSchedule.prototype.renderSchedule = function(schedule) {
         html += '<div class="shows-list">';
         
         channelData.shows.forEach(function(show) {
-            // Проверяем наличие всех необходимых данных
             if (!show || !show.shows) {
-                return; // Пропускаем некорректные записи
+                return; 
             }
 
             var isLive = this.isShowLive(show.start_datetime, show.end_datetime);
@@ -363,7 +352,6 @@ TVSchedule.prototype.isShowLive = function(startTime, endTime) {
 };
 
 TVSchedule.prototype.formatTime = function(datetime) {
-    // Форматируем время для московского часового пояса (UTC+3)
     var date = new Date(datetime);
     var moscowTime = new Date(date.getTime() + (3 * 60 * 60 * 1000));
     return moscowTime.toLocaleTimeString('ru-RU', {
@@ -381,8 +369,8 @@ TVSchedule.prototype.showError = function(message) {
         '</div>';
 };
 
-// Инициализация приложения
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Инициализация телепрограммы...');
     new TVSchedule();
+
 });
