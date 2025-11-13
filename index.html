@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📺 Телепрограмма</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .current-time {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .filters {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .now-playing {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 8px;
+        }
+
+        .now-playing h2 {
+            color: #856404;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .current-show {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ffeaa7;
+            margin-bottom: 10px;
+        }
+
+        .schedule-section {
+            padding: 20px;
+        }
+
+        .channel-section {
+            margin-bottom: 30px;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .channel-header {
+            background: #3498db;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .channel-logo {
+            width: 50px;
+            height: 30px;
+            object-fit: contain;
+            background: white;
+            padding: 2px;
+            border-radius: 4px;
+        }
+
+        .channel-name {
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+
+        .shows-list {
+            padding: 0;
+        }
+
+        .show-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f1f3f4;
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+            transition: background-color 0.2s;
+        }
+
+        .show-item:hover {
+            background: #f8f9fa;
+        }
+
+        .show-item:last-child {
+            border-bottom: none;
+        }
+
+        .show-time {
+            min-width: 100px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .show-info {
+            flex: 1;
+        }
+
+        .show-title {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .show-meta {
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .show-episode {
+            font-style: italic;
+            color: #495057;
+        }
+
+        .show-description {
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .live-badge {
+            background: #e74c3c;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            font-size: 1.1em;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .show-item {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .show-time {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-tv"></i> Телепрограмма</h1>
+            <div class="current-time" id="currentTime"></div>
+        </header>
+
+        <section class="filters">
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label for="datePicker"><i class="fas fa-calendar"></i> Дата:</label>
+                    <input type="date" id="datePicker">
+                </div>
+                <div class="filter-group">
+                    <label for="channelFilter"><i class="fas fa-satellite-dish"></i> Канал:</label>
+                    <select id="channelFilter">
+                        <option value="">Все каналы</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="genreFilter"><i class="fas fa-theater-masks"></i> Жанр:</label>
+                    <select id="genreFilter">
+                        <option value="">Все жанры</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <section class="now-playing" id="nowPlaying" style="display: none;">
+            <h2><i class="fas fa-broadcast-tower"></i> Сейчас в эфире</h2>
+            <div id="currentShowsContainer"></div>
+        </section>
+
+        <section class="schedule-section">
+            <div id="scheduleContainer">
+                <div class="loading">Загрузка телепрограммы...</div>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js"></script>
+</body>
+</html>
